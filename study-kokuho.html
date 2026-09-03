@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国保・介護保険 学習ノート</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --bg-elev:#ffffff; --bg-elev2:#eef0f4;
+    --text:#1b1f27; --text-dim:#5a6270; --border:#dde1e8;
+    --accent:#2f6fed; --accent-dim:#e8f0ff;
+    --good:#1f9d55; --good-bg:#e6f7ec;
+    --bad:#e0403a; --bad-bg:#fdecec;
+    --warn:#b5790a; --warn-bg:#fff6e0;
+    --card-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --code-bg:#f0f1f4;
+  }
+  [data-theme="dark"]{
+    --bg:#12141a; --bg-elev:#1a1d25; --bg-elev2:#20242e;
+    --text:#e9ebf1; --text-dim:#9aa2b1; --border:#2b3040;
+    --accent:#6d9bff; --accent-dim:#1c2740;
+    --good:#4fd982; --good-bg:#123321;
+    --bad:#ff6b66; --bad-bg:#3a1616;
+    --warn:#f0b429; --warn-bg:#3a2c0d;
+    --card-shadow: 0 2px 10px rgba(0,0,0,.35);
+    --code-bg:#0f1117;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.75;
+  }
+  .app{max-width:1180px;margin:0 auto;padding:0 16px 60px;}
+  header.topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 4px 12px; gap:12px; flex-wrap:wrap;
+  }
+  header.topbar h1{
+    font-size:1.35rem; margin:0; letter-spacing:.02em;
+  }
+  header.topbar .sub{color:var(--text-dim); font-size:.85rem; margin-top:2px;}
+  .theme-btn{
+    background:var(--bg-elev); border:1px solid var(--border); color:var(--text);
+    border-radius:999px; padding:8px 14px; cursor:pointer; font-size:.85rem;
+    display:flex; align-items:center; gap:6px;
+  }
+  .theme-btn:hover{border-color:var(--accent);}
+
+  .layout{display:flex; gap:20px; align-items:flex-start;}
+  nav.tabs{
+    flex:0 0 220px; position:sticky; top:16px;
+    display:flex; flex-direction:column; gap:6px;
+    background:var(--bg-elev); border:1px solid var(--border); border-radius:14px;
+    padding:10px;
+  }
+  nav.tabs button{
+    all:unset; cursor:pointer; padding:12px 14px; border-radius:10px;
+    color:var(--text-dim); font-size:.92rem; display:flex; gap:10px; align-items:center;
+    transition:background .15s, color .15s;
+  }
+  nav.tabs button .num{
+    width:22px; height:22px; border-radius:50%; background:var(--bg-elev2);
+    display:flex; align-items:center; justify-content:center; font-size:.75rem;
+    flex:0 0 auto; color:var(--text-dim);
+  }
+  nav.tabs button:hover{background:var(--bg-elev2); color:var(--text);}
+  nav.tabs button.active{background:var(--accent-dim); color:var(--accent); font-weight:600;}
+  nav.tabs button.active .num{background:var(--accent); color:#fff;}
+
+  main{flex:1; min-width:0;}
+  .panel{display:none; animation:fade .25s ease;}
+  .panel.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  .panel h2{font-size:1.5rem; margin:4px 0 4px;}
+  .panel .lead{color:var(--text-dim); margin-bottom:22px; font-size:.95rem;}
+
+  section.block{
+    background:var(--bg-elev); border:1px solid var(--border); border-radius:14px;
+    padding:20px 22px; margin-bottom:18px; box-shadow:var(--card-shadow);
+  }
+  section.block h3{margin-top:0; font-size:1.08rem; display:flex; align-items:center; gap:8px;}
+  section.block h3 .tag{
+    font-size:.68rem; background:var(--bg-elev2); color:var(--text-dim);
+    padding:2px 8px; border-radius:6px; font-weight:500;
+  }
+  section.block ul{padding-left:1.3em; margin:.6em 0;}
+  section.block li{margin-bottom:.35em;}
+
+  .note{
+    background:var(--warn-bg); border:1px solid color-mix(in srgb, var(--warn) 40%, transparent);
+    border-radius:10px; padding:10px 14px; font-size:.85rem; color:var(--text);
+    margin:10px 0;
+  }
+  .note b{color:var(--warn);}
+
+  /* ケースカード */
+  .case-card{
+    border:1px solid var(--border); border-left:4px solid var(--accent);
+    background:var(--bg-elev2); border-radius:12px; padding:18px 20px; margin:16px 0;
+  }
+  .case-label{
+    display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:.82rem;
+    color:var(--accent); background:var(--accent-dim); padding:4px 12px; border-radius:999px;
+    margin-bottom:10px;
+  }
+  .case-card h4{margin:0 0 8px; font-size:1.02rem;}
+  .case-steps{display:grid; gap:10px; margin-top:10px;}
+  .case-step{
+    display:grid; grid-template-columns:88px 1fr; gap:10px; align-items:start;
+    padding:8px 0; border-top:1px dashed var(--border);
+  }
+  .case-step:first-child{border-top:none;}
+  .case-step .label{
+    font-size:.72rem; color:var(--text-dim); font-weight:700; letter-spacing:.03em; padding-top:2px;
+  }
+  .case-step .body{font-size:.92rem;}
+  .case-calc{
+    background:var(--code-bg); border-radius:8px; padding:10px 14px; font-size:.85rem;
+    font-family:"SFMono-Regular",Menlo,Consolas,monospace; margin-top:8px; overflow-x:auto;
+    white-space:pre;
+  }
+
+  /* 用語ツールチップ */
+  .term{
+    border-bottom:1px dashed var(--accent); color:var(--accent); cursor:help;
+    position:relative; font-weight:600;
+  }
+  .term .tip{
+    position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%) translateY(4px);
+    background:var(--text); color:var(--bg); font-weight:400;
+    font-size:.78rem; line-height:1.5; padding:8px 12px; border-radius:8px;
+    width:max-content; max-width:260px; box-shadow:0 6px 20px rgba(0,0,0,.25);
+    opacity:0; visibility:hidden; transition:opacity .15s, transform .15s; z-index:20;
+  }
+  .term .tip::after{
+    content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+    border:6px solid transparent; border-top-color:var(--text);
+  }
+  .term:hover .tip, .term:focus .tip, .term.tip-active .tip{
+    opacity:1; visibility:visible; transform:translateX(-50%) translateY(0);
+  }
+
+  /* 比較表 */
+  .table-wrap{overflow-x:auto; margin:10px 0;}
+  table.compare{width:100%; border-collapse:collapse; font-size:.92rem; min-width:560px;}
+  table.compare th, table.compare td{
+    padding:12px 14px; border:1px solid var(--border); text-align:left; vertical-align:top;
+  }
+  table.compare thead th{
+    background:var(--bg-elev2); font-weight:700; position:sticky; top:0;
+  }
+  table.compare tbody th{background:var(--bg-elev2); white-space:nowrap; font-weight:600;}
+  table.compare tr.hl td{background:var(--accent-dim);}
+  table.compare tr.hl th{background:var(--accent-dim); color:var(--accent);}
+
+  /* クイズ */
+  .quiz-box{
+    background:var(--bg-elev2); border:1px solid var(--border); border-radius:12px;
+    padding:16px 18px; margin-top:8px;
+  }
+  .quiz-box > h4{margin:0 0 10px; font-size:.98rem; display:flex; align-items:center; gap:8px;}
+  .quiz-question{margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid var(--border);}
+  .quiz-question:last-child{margin-bottom:0; padding-bottom:0; border-bottom:none;}
+  .q-text{font-weight:600; margin:0 0 10px; font-size:.94rem;}
+  .choices{display:flex; flex-direction:column; gap:8px;}
+  .choice{
+    all:unset; cursor:pointer; padding:10px 14px; border-radius:8px; border:1px solid var(--border);
+    background:var(--bg-elev); font-size:.88rem; display:flex; align-items:center; gap:8px;
+  }
+  .choice:hover{border-color:var(--accent);}
+  .choice.correct{background:var(--good-bg); border-color:var(--good); color:var(--good);}
+  .choice.wrong{background:var(--bad-bg); border-color:var(--bad); color:var(--bad);}
+  .choice[disabled]{cursor:default; pointer-events:none;}
+  .choice .mark{font-size:.9em;}
+  .feedback{
+    margin:10px 0 0; font-size:.86rem; padding:10px 12px; border-radius:8px;
+    background:var(--bg-elev); border:1px solid var(--border);
+  }
+  .feedback.show{display:block;}
+  .feedback{display:none;}
+  .feedback.ok{border-color:var(--good);}
+  .feedback.ng{border-color:var(--bad);}
+
+  footer.page{color:var(--text-dim); font-size:.78rem; text-align:center; padding:30px 0 10px;}
+
+  /* モバイル対応 */
+  @media (max-width:820px){
+    .layout{flex-direction:column;}
+    nav.tabs{
+      position:sticky; top:0; z-index:30; flex-direction:row; overflow-x:auto;
+      width:100%; flex:none; -webkit-overflow-scrolling:touch;
+    }
+    nav.tabs button{white-space:nowrap;}
+    .case-step{grid-template-columns:1fr;}
+    section.block{padding:16px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <h1>🏥 国保・介護保険 学習ノート</h1>
+      <div class="sub">WizLIFE運用保守 新人向け — 国民健康保険と介護保険のしくみ</div>
+    </div>
+    <button class="theme-btn" id="themeToggle" type="button">🌙 <span id="themeLabel">ダーク</span></button>
+  </header>
+
+  <div class="layout">
+    <nav class="tabs" id="tabs" role="tablist">
+      <button class="active" data-target="sec1" role="tab"><span class="num">1</span>国保の資格</button>
+      <button data-target="sec2" role="tab"><span class="num">2</span>国保の給付</button>
+      <button data-target="sec3" role="tab"><span class="num">3</span>介護保険の基本</button>
+      <button data-target="sec4" role="tab"><span class="num">4</span>国保と介護の比較</button>
+      <button data-target="sec5" role="tab"><span class="num">5</span>WizLIFEとのつながり</button>
+    </nav>
+
+    <main>
+
+      <!-- ============ 1. 国保の資格 ============ -->
+      <section class="panel active" id="sec1">
+        <h2>1. 国保の資格</h2>
+        <p class="lead">誰が国保に入るのか、いつ入り・いつ抜けるのか、そして「世帯」という単位がなぜ重要なのかを押さえます。</p>
+
+        <section class="block">
+          <h3>対象者 <span class="tag">誰が入るか</span></h3>
+          <p>
+            国民健康保険（国保）は、<span class="term" tabindex="0">75歳未満<span class="tip">75歳になると後期高齢者医療制度へ自動的に移行し、国保の資格は喪失します。</span></span>の住民のうち、会社の健康保険（社会保険）や共済組合など<b>他の医療保険制度に加入していない人</b>が対象です。具体的には自営業者、農業・漁業従事者、非正規雇用で社保未加入の人、無職の人、年金生活者などが該当します。
+          </p>
+          <ul>
+            <li>日本は「国民皆保険」なので、他の医療保険に入っていない住民は必ず国保に加入する。</li>
+            <li>生活保護を受給している人は国保の対象外（医療扶助が優先）。</li>
+            <li>外国人住民も、在留資格に応じて対象になる場合がある（自治体ごとに要件の運用差あり・要確認）。</li>
+          </ul>
+        </section>
+
+        <section class="block">
+          <h3>加入・喪失のタイミング <span class="tag">いつ届け出るか</span></h3>
+          <ul>
+            <li><b>加入するとき</b>：転入した、職場の社保をやめた（退職・雇用形態変更）、子どもが生まれた、生活保護が廃止になった、など。</li>
+            <li><b>喪失するとき</b>：就職して社保に加入した、他の市区町村へ転出した、死亡した、75歳になり後期高齢者医療制度へ移行した、生活保護を受給し始めた、など。</li>
+            <li>いずれの届出も、事由が発生してから<span class="term" tabindex="0">14日以内<span class="tip">国民健康保険法施行規則で定められた届出期限。過ぎても届出自体はできますが、保険料の遡及賦課や給付の精算が発生します。</span></span>に市区町村へ届け出るのが原則です。</li>
+          </ul>
+        </section>
+
+        <section class="block">
+          <h3>世帯単位の管理と擬制世帯主 <span class="tag">世帯という単位</span></h3>
+          <p>
+            国保は「個人」ではなく<b>世帯</b>を単位に資格や保険料（税）を管理します。世帯の中に1人でも国保加入者がいれば、世帯主が納税義務者になります。
+          </p>
+          <p>
+            ここで重要なのが<span class="term" tabindex="0">擬制世帯主<span class="tip">世帯主自身は社保加入などで国保の被保険者ではないが、同一世帯に国保加入者がいるために、便宜上「世帯主」として国保税の納税義務を負う人のこと。</span></span>という考え方です。世帯主自身が社保に入っていて国保の被保険者でなくても、同居する家族（配偶者・子など）が国保に加入していれば、世帯主は「擬制世帯主」として国保税の納税義務者になります。国保の資格そのものは持っていないのに、納税通知書は世帯主宛てに届く、という状態が起こり得ます。
+          </p>
+          <div class="note"><b>ポイント：</b>資格データと課税データを見るとき、「この人は被保険者か／納税義務者か」を分けて考える必要があります。擬制世帯主は被保険者ではないため、給付（保険証など）は受けられません。</div>
+        </section>
+
+        <div class="case-card">
+          <span class="case-label">📋 ケース</span>
+          <h4>田中太郎さん（45歳・自営業）が就職して社保に加入した</h4>
+          <div class="case-steps">
+            <div class="case-step"><div class="label">背景</div><div class="body">田中太郎さんは長年自営業を営み、国保に加入していた。妻と高校生の子どもも同じ世帯で国保に加入。</div></div>
+            <div class="case-step"><div class="label">何が起きたか</div><div class="body">田中さんが会社に就職し、その会社の社会保険（健康保険）に加入した。会社側は資格取得手続きを行い、田中さん個人は社保の被保険者になった。</div></div>
+            <div class="case-step"><div class="label">制度上どうなるか</div><div class="body">田中さん本人は社保に加入した時点で国保の資格を喪失する。ただし<b>自動では切り替わらない</b>ため、田中さん自身が市区町村に「国民健康保険資格喪失届」を14日以内に提出する必要がある。妻と子どもは社保の扶養に入れば国保を抜けるが、扶養に入らなければ国保加入を継続する（世帯構成が分かれる点に注意）。</div></div>
+            <div class="case-step"><div class="label">システム上どう処理されるか</div><div class="body">届出が遅れると、国保システム上は田中さんの資格が継続しているとみなされ、その間の保険税が賦課され続ける。一方で田中さんは社保証を使って受診するため、国保側では「無資格期間の給付」は発生しないはずだが、逆に本人が誤って古い国保証で受診してしまうと、市区町村は医療機関へ支払った療養費の返還を求め、田中さんへは重複して支払った保険税の<b>還付処理</b>が必要になる。担当者は資格喪失日を正しくさかのぼって登録し、月割で保険税を再計算（減額更正）し、還付金を発生させるオペレーションを行う。</div></div>
+          </div>
+        </div>
+
+        <div class="quiz-box">
+          <h4>✅ 確認クイズ</h4>
+          <div class="quiz-question">
+            <p class="q-text">Q1. 国保の資格喪失（就職して社保に加入した等）の届出は、原則何日以内に行う必要がある？</p>
+            <div class="choices">
+              <button class="choice">7日以内</button>
+              <button class="choice" data-correct="true">14日以内</button>
+              <button class="choice">30日以内</button>
+              <button class="choice">60日以内</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q2. 世帯主自身は社保加入者で国保の被保険者ではないが、家族に国保加入者がいるために納税義務を負う人を何と呼ぶ？</p>
+            <div class="choices">
+              <button class="choice">名目世帯主</button>
+              <button class="choice" data-correct="true">擬制世帯主</button>
+              <button class="choice">代表被保険者</button>
+              <button class="choice">仮世帯主</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q3. 田中さんが国保喪失届を出し忘れた場合に起こりやすい事務処理はどれ？</p>
+            <div class="choices">
+              <button class="choice">自動的に何も変わらないので対応不要</button>
+              <button class="choice" data-correct="true">資格をさかのぼって喪失させ、保険税の還付処理などを行う</button>
+              <button class="choice">田中さんの介護保険料が上がる</button>
+              <button class="choice">世帯が強制的に分割される</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 2. 国保の給付 ============ -->
+      <section class="panel" id="sec2">
+        <h2>2. 国保の給付</h2>
+        <p class="lead">窓口で実際に発生するお金の動き（療養の給付・高額療養費・出産育児一時金・葬祭費）を、自己負担割合とセットで理解します。</p>
+
+        <section class="block">
+          <h3>療養の給付と自己負担割合 <span class="tag">窓口負担</span></h3>
+          <ul>
+            <li>義務教育就学前（〜6歳）：<b>2割</b></li>
+            <li>義務教育就学後〜69歳：<b>3割</b></li>
+            <li>70〜74歳：原則<b>2割</b>（現役並み所得者は<b>3割</b>）</li>
+          </ul>
+          <div class="note"><b>注記：</b>2014年3月31日までにすでに70歳になっていた人には、経過措置として1割負担が据え置かれる特例がありましたが、現在新たに70歳になる人には適用されません。現行制度では70〜74歳は原則2割です。</div>
+        </section>
+
+        <section class="block">
+          <h3>高額療養費 <span class="tag">払い戻し</span></h3>
+          <p>
+            <span class="term" tabindex="0">高額療養費<span class="tip">1か月（同一月）の医療費の自己負担額が、所得区分ごとに定められた上限額を超えた場合、その超えた分が払い戻される制度。</span></span>は、1か月の窓口負担が年齢・所得に応じた自己負担限度額を超えたときに、その超過分を払い戻す制度です。限度額は年齢（70歳未満／70歳以上）と所得区分によって細かく分かれます。
+          </p>
+          <div class="note"><b>注記：</b>限度額の区分・金額は毎年見直される可能性があり、自治体独自の付加給付（国保にはほぼないが健保組合にはある場合も）もあるため、正確な金額は最新の制度資料で確認してください。以下のケースは代表的な「一般区分」の目安額で計算しています。</div>
+        </section>
+
+        <section class="block">
+          <h3>出産育児一時金・葬祭費 <span class="tag">一時金給付</span></h3>
+          <ul>
+            <li><b>出産育児一時金</b>：被保険者が出産したときに支給される一時金。産科医療補償制度に加入する分娩機関で出産した場合は<b>50万円</b>（未加入機関の場合は48.8万円等、金額は制度改定で変動）。多くの場合、医療機関が直接受け取る「直接支払制度」が使われ、窓口では差額分のみの精算になる。</li>
+            <li><b>葬祭費</b>：被保険者が死亡したとき、喪主に支給される。金額は<b>自治体ごとに異なり</b>、一般的には3万円〜7万円程度が多い（要：各市区町村の条例確認）。</li>
+          </ul>
+        </section>
+
+        <div class="case-card">
+          <span class="case-label">📋 ケース</span>
+          <h4>佐藤花子さん（70歳）が入院し、月の医療費が50万円かかった</h4>
+          <div class="case-steps">
+            <div class="case-step"><div class="label">背景</div><div class="body">佐藤花子さんは70歳、一般所得区分（住民税課税だが現役並み所得ではない）の国保加入者。</div></div>
+            <div class="case-step"><div class="label">何が起きたか</div><div class="body">急な体調不良で入院し、1か月の総医療費（保険適用分）が50万円かかった。窓口では年齢に応じた自己負担割合分を支払う必要がある。</div></div>
+            <div class="case-step"><div class="label">制度上どうなるか</div><div class="body">
+              70〜74歳・一般区分の自己負担割合は<b>2割</b>のため、窓口ではいったん10万円を支払う。ただし70歳以上の一般区分には「外来＋入院（世帯単位）」で月<b>57,600円</b>という自己負担限度額があり、これを超えた分は高額療養費として払い戻される。
+              <div class="case-calc">総医療費　　　500,000円
+窓口負担(2割)　100,000円
+自己負担限度額(一般区分・世帯) 57,600円
+高額療養費として払い戻される額
+　= 100,000円 − 57,600円 = 42,400円
+最終的な実質負担額 = 57,600円</div>
+              なお、佐藤さんが「現役並み所得者」なら負担割合は3割になり、限度額区分も変わる（例：現役並みⅢで252,600円＋医療費が一定額を超えた分の1%）。所得区分の見極めが計算の分かれ目になる。
+            </div></div>
+            <div class="case-step"><div class="label">システム上どう処理されるか</div><div class="body">医療機関から国保連合会に提出される<span class="term" tabindex="0">レセプト<span class="tip">診療報酬明細書。医療機関が保険者に医療費を請求するための明細データ。</span></span>データをもとに、市区町村（またはWizLIFEのような基幹システム）が世帯・個人ごとの月間自己負担額を集計する<b>月次バッチ処理</b>を実行し、限度額超過者を自動抽出。対象者には支給決定通知を送付し、指定口座へ振り込む。直近12か月以内に4回以上高額療養費に該当する「<span class="term" tabindex="0">多数回該当<span class="tip">過去12か月間に高額療養費の支給が4回以上あった場合、4回目以降は自己負担限度額がさらに引き下げられる仕組み。</span></span>」のカウントもシステム側で保持する必要がある。</div></div>
+          </div>
+        </div>
+
+        <div class="quiz-box">
+          <h4>✅ 確認クイズ</h4>
+          <div class="quiz-question">
+            <p class="q-text">Q1. 70〜74歳（現役並み所得者を除く）の医療費自己負担割合は原則何割？</p>
+            <div class="choices">
+              <button class="choice">1割</button>
+              <button class="choice" data-correct="true">2割</button>
+              <button class="choice">3割</button>
+              <button class="choice">4割</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q2. 高額療養費制度の説明として正しいのはどれ？</p>
+            <div class="choices">
+              <button class="choice">医療費そのものを無料にする制度</button>
+              <button class="choice" data-correct="true">1か月の自己負担が上限額を超えた分を払い戻す制度</button>
+              <button class="choice">出産費用を補助する制度</button>
+              <button class="choice">葬祭費を補助する制度</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q3. 出産育児一時金で、多くの場合窓口精算の手間を減らすために使われる仕組みは？</p>
+            <div class="choices">
+              <button class="choice">特別徴収</button>
+              <button class="choice">擬制世帯主制度</button>
+              <button class="choice" data-correct="true">直接支払制度</button>
+              <button class="choice">多数回該当</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 3. 介護保険の基本 ============ -->
+      <section class="panel" id="sec3">
+        <h2>3. 介護保険の基本</h2>
+        <p class="lead">「誰が対象か」「どうやって要介護度が決まるか」「サービスをどう使うか」の3点を押さえます。</p>
+
+        <section class="block">
+          <h3>第1号・第2号被保険者 <span class="tag">対象者</span></h3>
+          <ul>
+            <li><span class="term" tabindex="0">第1号被保険者<span class="tip">65歳以上の人。原因を問わず要支援・要介護状態になれば給付対象。</span></span>：<b>65歳以上</b>の人。原因を問わず、要支援・要介護状態になれば介護サービスを利用できる。</li>
+            <li><span class="term" tabindex="0">第2号被保険者<span class="tip">40〜64歳で医療保険に加入している人。加齢に伴う特定疾病が原因の場合のみ給付対象。</span></span>：<b>40〜64歳</b>で医療保険（国保や社保）に加入している人。<b>加齢に伴う特定疾病（末期がん・関節リウマチ・脳血管疾患など16種類）が原因</b>で要介護・要支援状態になった場合に限り給付対象になる（交通事故など特定疾病以外が原因では対象外）。</li>
+          </ul>
+        </section>
+
+        <section class="block">
+          <h3>要介護認定の流れ <span class="tag">申請〜認定</span></h3>
+          <ul>
+            <li>① 市区町村窓口へ<b>要介護認定の申請</b></li>
+            <li>② 市区町村職員等による<b>認定調査（訪問調査）</b>と、主治医が作成する<b>主治医意見書</b></li>
+            <li>③ 調査結果をコンピュータで判定する<b>一次判定</b></li>
+            <li>④ 保健・医療・福祉の専門家による<span class="term" tabindex="0">介護認定審査会<span class="tip">一次判定結果と主治医意見書などをもとに、最終的な要介護度を決定する合議体。</span></span>での<b>二次判定</b></li>
+            <li>⑤ 「要支援1・2」「要介護1〜5」または「非該当」の<b>認定結果通知</b>（申請から原則<b>30日以内</b>）</li>
+          </ul>
+        </section>
+
+        <section class="block">
+          <h3>給付内容と自己負担 <span class="tag">サービス利用</span></h3>
+          <ul>
+            <li>要支援1・2：介護予防サービス（訪問介護・デイサービスの予防版など）</li>
+            <li>要介護1〜5：居宅サービス（訪問介護・デイサービス・ショートステイ等）、施設サービス（特別養護老人ホームは原則要介護3以上）、地域密着型サービスなど。</li>
+            <li>自己負担は原則<b>1割</b>（一定以上の所得がある人は2割・3割）。</li>
+            <li>要介護度ごとに<span class="term" tabindex="0">区分支給限度基準額<span class="tip">要介護度に応じて1か月に保険給付を受けられる上限額。単位数で定められ、超えた分は全額自己負担になる。</span></span>が設定されており、これを超えて利用した分は全額自己負担になる。</li>
+          </ul>
+        </section>
+
+        <div class="case-card">
+          <span class="case-label">📋 ケース</span>
+          <h4>鈴木一郎さん（78歳）が要介護2の認定を受け、デイサービスを週3回利用</h4>
+          <div class="case-steps">
+            <div class="case-step"><div class="label">背景</div><div class="body">鈴木一郎さんは第1号被保険者（65歳以上）。転倒をきっかけに要介護認定を申請し、認定調査・主治医意見書を経て「要介護2」と認定された。</div></div>
+            <div class="case-step"><div class="label">何が起きたか</div><div class="body">ケアマネジャーとケアプランを作成し、通所介護（デイサービス）を週3回利用することになった。</div></div>
+            <div class="case-step"><div class="label">制度上どうなるか</div><div class="body">
+              要介護2の区分支給限度基準額は目安として月<b>197,050円</b>程度（1単位=10円換算、2024年度改定時点の目安・地域や年度で変動）。この範囲内であれば自己負担は原則1割で済む。
+              <div class="case-calc">※分かりやすさのため、デイサービス1回あたりの単位数を仮に700単位（1割負担で700円相当、食費等は含まず）とした概算例
+1回あたり総費用　 700単位 × 10円 = 7,000円
+1回あたり自己負担(1割)　　　　　  700円
+月の利用回数　　　週3回 × 4週 = 12回
+月の自己負担合計　700円 × 12回 = 8,400円
+区分支給限度基準額(目安197,050円)の範囲内 → 全額1割負担でOK</div>
+              実際の単位数はサービス提供時間・事業所の規模・地域区分・各種加算（入浴介助加算など）で変動するため、正確な金額はサービス提供票・給付管理票で確認する必要がある。また、デイサービスの食費・おやつ代などは保険給付の対象外で実費負担となる。
+            </div></div>
+            <div class="case-step"><div class="label">システム上どう処理されるか</div><div class="body">介護保険システムは要介護度ごとの区分支給限度基準額をマスタとして保持し、事業所から送られてくる給付実績（国保連合会経由の介護給付費請求明細書）を月次で突き合わせ、限度額を超えていないかチェックする。超過分があれば全額自己負担として処理し、超過していなければ保険給付9割（または7〜8割）＋利用者負担1〜3割に按分して事業所へ支払いを行う。</div></div>
+          </div>
+        </div>
+
+        <div class="quiz-box">
+          <h4>✅ 確認クイズ</h4>
+          <div class="quiz-question">
+            <p class="q-text">Q1. 介護保険の第2号被保険者に該当する年齢層はどれ？</p>
+            <div class="choices">
+              <button class="choice">20〜39歳</button>
+              <button class="choice" data-correct="true">40〜64歳</button>
+              <button class="choice">65〜74歳</button>
+              <button class="choice">75歳以上</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q2. 第2号被保険者が介護サービスを受けられるのはどんな場合？</p>
+            <div class="choices">
+              <button class="choice">理由を問わず要介護・要支援になればいつでも</button>
+              <button class="choice" data-correct="true">加齢に伴う特定疾病が原因で要介護・要支援になった場合のみ</button>
+              <button class="choice">交通事故で要介護になった場合のみ</button>
+              <button class="choice">65歳になった時点で自動的に</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q3. 要介護度に応じて設定され、超えると全額自己負担になる月あたりの上限額を何と呼ぶ？</p>
+            <div class="choices">
+              <button class="choice">高額療養費限度額</button>
+              <button class="choice" data-correct="true">区分支給限度基準額</button>
+              <button class="choice">賦課限度額</button>
+              <button class="choice">介護納付金</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4. 国保と介護の比較 ============ -->
+      <section class="panel" id="sec4">
+        <h2>4. 国保と介護の比較</h2>
+        <p class="lead">似ているようで仕組みが違う2つの保険制度。特に自己負担割合と保険料の算定単位の違いは要注意です。</p>
+
+        <section class="block">
+          <h3>比較表 <span class="tag">違い・共通点</span></h3>
+          <div class="table-wrap">
+            <table class="compare">
+              <thead>
+                <tr><th>項目</th><th>国民健康保険</th><th>介護保険</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>対象者</th>
+                  <td>75歳未満で他の医療保険に未加入の住民</td>
+                  <td>第1号：65歳以上の全住民／第2号：40〜64歳の医療保険加入者</td>
+                </tr>
+                <tr>
+                  <th>保険者（運営主体）</th>
+                  <td>市区町村（2018年度〜都道府県が財政運営の責任主体を担い、市区町村と共同運営）</td>
+                  <td>市区町村</td>
+                </tr>
+                <tr>
+                  <th>給付内容</th>
+                  <td>療養の給付、高額療養費、出産育児一時金、葬祭費 など</td>
+                  <td>居宅・施設・地域密着型の介護サービス、介護予防サービス</td>
+                </tr>
+                <tr class="hl">
+                  <th>自己負担割合</th>
+                  <td>原則3割（就学前2割、70〜74歳は原則2割）</td>
+                  <td>原則1割（一定以上所得者は2割・3割）</td>
+                </tr>
+                <tr class="hl">
+                  <th>保険料の算定単位</th>
+                  <td><b>世帯単位</b>（擬制世帯主を含む）</td>
+                  <td><b>個人単位</b>（第1号は本人の所得等、第2号は医療保険料に上乗せ）</td>
+                </tr>
+                <tr>
+                  <th>主な徴収方法</th>
+                  <td>普通徴収（納付書・口座振替）、要件を満たせば年金からの特別徴収</td>
+                  <td>第1号：原則年金からの特別徴収（不該当者は普通徴収）／第2号：医療保険料と一括徴収</td>
+                </tr>
+                <tr>
+                  <th>資格・給付の判定</th>
+                  <td>所得・世帯状況などによる資格審査</td>
+                  <td>介護認定審査会による要介護認定</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="note"><b>共通点：</b>どちらも市区町村が保険者となる「社会保険方式」であり、40〜64歳の人は<b>国保の被保険者であると同時に介護保険の第2号被保険者</b>にもなるという重なりがあります。</div>
+        </section>
+
+        <div class="case-card">
+          <span class="case-label">📋 ケース</span>
+          <h4>山田夫妻（夫52歳・妻48歳）の国保税通知書に「介護納付金分」が載っている理由</h4>
+          <div class="case-steps">
+            <div class="case-step"><div class="label">背景</div><div class="body">山田さん夫妻はどちらも国保加入者。世帯には16歳の子どもも同居している。</div></div>
+            <div class="case-step"><div class="label">何が起きたか</div><div class="body">6月に届いた国保税納税通知書を見ると、「医療分」「後期高齢者支援金分」に加えて「介護納付金分」という項目があり、夫婦それぞれに金額が計上されていた。子ども分にはこの項目がなかった。</div></div>
+            <div class="case-step"><div class="label">制度上どうなるか</div><div class="body">夫（52歳）・妻（48歳）はどちらも40〜64歳なので、国保の被保険者であると同時に介護保険の<b>第2号被保険者</b>でもある。そのため国保税には介護保険料に相当する「介護納付金分」が上乗せされて課税・徴収される。一方、16歳の子どもは40歳未満なので介護保険の被保険者ではなく、介護納付金分は課されない（医療分＋後期高齢者支援金分のみ）。夫婦のどちらかが65歳になると、その人の介護保険料は国保税から切り離され、<b>個人単位の介護保険料</b>として別途賦課される（原則年金天引き）。</div></div>
+            <div class="case-step"><div class="label">システム上どう処理されるか</div><div class="body">国保システムは世帯員一人ひとりの生年月日から年齢を判定し、40歳以上65歳未満の人にのみ介護納付金分の所得割・均等割を自動計算して合算する。65歳到達者が出た月には、その人を介護納付金分の計算対象から外し、介護保険料システム側で新たに第1号被保険者としての保険料計算を開始する「制度間の切り替え連携」が必要になる。</div></div>
+          </div>
+        </div>
+
+        <div class="quiz-box">
+          <h4>✅ 確認クイズ</h4>
+          <div class="quiz-question">
+            <p class="q-text">Q1. 国保の保険料（税）はどの単位で算定される？</p>
+            <div class="choices">
+              <button class="choice">個人単位</button>
+              <button class="choice" data-correct="true">世帯単位</button>
+              <button class="choice">事業所単位</button>
+              <button class="choice">都道府県単位</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q2. 介護保険第1号被保険者の保険料徴収方法として原則的なものは？</p>
+            <div class="choices">
+              <button class="choice">給与天引き</button>
+              <button class="choice" data-correct="true">年金からの特別徴収</button>
+              <button class="choice">医療保険料と一括徴収</button>
+              <button class="choice">クレジットカード払いのみ</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q3. 40〜64歳の国保加入者は、介護保険とどのような関係にある？</p>
+            <div class="choices">
+              <button class="choice">介護保険とは一切関係がない</button>
+              <button class="choice" data-correct="true">国保の被保険者であると同時に介護保険第2号被保険者でもある</button>
+              <button class="choice">自動的に第1号被保険者になる</button>
+              <button class="choice">介護サービスは無条件に利用できる</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 5. WizLIFEとのつながり ============ -->
+      <section class="panel" id="sec5">
+        <h2>5. WizLIFEとのつながり</h2>
+        <p class="lead">制度の知識が、実際のシステム上のデータ・バッチ処理としてどう現れるかを見ていきます。</p>
+
+        <section class="block">
+          <h3>国保税の3区分 <span class="tag">課税構造</span></h3>
+          <ul>
+            <li><b>医療分（基礎課税額）</b>：国保そのものの医療給付の財源。全被保険者が対象。</li>
+            <li><b>後期高齢者支援金分</b>：後期高齢者医療制度を支えるための拠出金の財源。全被保険者が対象。</li>
+            <li><b>介護納付金分</b>：介護保険の財源のうち第2号被保険者分。<b>40〜64歳の被保険者のみ</b>が対象。</li>
+          </ul>
+          <p>それぞれ「所得割」「均等割」（自治体によっては「平等割」「資産割」も）を組み合わせて計算し、3区分を合算したものが年間の国保税額になります。</p>
+        </section>
+
+        <section class="block">
+          <h3>賦課・徴収の仕組み <span class="tag">計算と請求</span></h3>
+          <ul>
+            <li><span class="term" tabindex="0">賦課期日<span class="tip">その年度の保険税額を計算する基準となる日。通常は4月1日、年度途中加入の場合は資格取得日。</span></span>（通常4月1日）を基準に年税額を計算し、多くの自治体で<b>6月に本算定</b>、その後<b>年8〜10期</b>程度（自治体により異なる）に分けて納付書や口座振替で徴収する。</li>
+            <li>年度途中で資格を取得・喪失した場合は、月単位で日割りではなく<b>月割</b>で税額を再計算する「随時賦課（随時更正）」が発生する。</li>
+          </ul>
+        </section>
+
+        <section class="block">
+          <h3>特別徴収と普通徴収 <span class="tag">徴収方法</span></h3>
+          <ul>
+            <li><span class="term" tabindex="0">特別徴収<span class="tip">年金からの天引きによる徴収方法。一定の要件（年金額・年齢等）を満たす場合に適用される。</span></span>：一定額以上の年金（目安：年額18万円以上）を受給している世帯主・被保険者について、年金から天引きする方法。介護保険料も同様の仕組みがある。</li>
+            <li><span class="term" tabindex="0">普通徴収<span class="tip">納付書や口座振替で本人が自ら納付する徴収方法。</span></span>：特別徴収の要件を満たさない場合に、納付書や口座振替で納める方法。</li>
+          </ul>
+        </section>
+
+        <section class="block">
+          <h3>高額療養費の月次バッチ <span class="tag">システム処理</span></h3>
+          <p>
+            国保連合会から届くレセプトデータをもとに、被保険者・世帯ごとの1か月の自己負担額を集計し、自己負担限度額を超えた対象者を抽出する処理を毎月バッチで実行します。多数回該当（直近12か月で4回目以降は限度額がさらに下がる）の判定には、過去の支給履歴を保持しておく必要があります。
+          </p>
+        </section>
+
+        <div class="case-card">
+          <span class="case-label">📋 ケース</span>
+          <h4>4月に転入届を出した世帯の「資格登録 → 賦課計算 → 通知書発行」をシステム目線で追う</h4>
+          <div class="case-steps">
+            <div class="case-step"><div class="label">背景</div><div class="body">ある4世帯（夫婦＋子ども2人）が4月10日に他市区町村から転入した。夫（55歳）は自営業、妻（42歳）はパート（社保未加入）、子どもは10歳と16歳。</div></div>
+            <div class="case-step"><div class="label">何が起きたか</div><div class="body">住民異動（転入）届が窓口に提出され、住民基本台帳システムに登録された。同時に世帯全員分の国保資格取得届も提出された。</div></div>
+            <div class="case-step"><div class="label">制度上どうなるか</div><div class="body">転入日（または届出日）を資格取得日として、国保の資格が発生する。夫は55歳、妻は42歳なのでどちらも介護納付金分の対象（40〜64歳）。子ども2人は対象外。年度途中の加入なので、本算定（6月）ではなく随時賦課として、資格取得月から年度末までの月数分を<b>月割</b>で計算する。</div></div>
+            <div class="case-step"><div class="label">システム上どう処理されるか</div><div class="body">
+              <div class="case-steps" style="margin-top:0;">
+                <div class="case-step"><div class="label">① 連携</div><div class="body">住基システムから異動情報（転入日・世帯構成）を国保システムが受信、または職員が窓口処理で世帯・被保険者データを新規登録。</div></div>
+                <div class="case-step"><div class="label">② 判定</div><div class="body">システムが各世帯員の生年月日から年齢を判定し、40〜64歳の夫・妻には自動で介護納付金分の計算対象フラグを立てる。</div></div>
+                <div class="case-step"><div class="label">③ 賦課計算</div><div class="body">資格取得日を基準に、医療分・支援金分・介護納付金分それぞれについて所得割・均等割を月割で按分計算（随時賦課）。</div></div>
+                <div class="case-step"><div class="label">④ 通知書発行</div><div class="body">計算結果をもとに納税通知書（または変更通知書）を生成し、印刷・郵送システムへデータを連携。口座振替対象者には振替依頼データも生成。</div></div>
+                <div class="case-step"><div class="label">⑤ 収納管理</div><div class="body">発行後の納付状況は収納管理システムに反映され、未納が続けば督促・滞納管理の処理へつながる。</div></div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="quiz-box">
+          <h4>✅ 確認クイズ</h4>
+          <div class="quiz-question">
+            <p class="q-text">Q1. 国保税を構成する3つの区分の組み合わせとして正しいものは？</p>
+            <div class="choices">
+              <button class="choice">医療分・介護給付分・年金分</button>
+              <button class="choice" data-correct="true">医療分・後期高齢者支援金分・介護納付金分</button>
+              <button class="choice">所得割・均等割・平等割</button>
+              <button class="choice">普通徴収・特別徴収・現年徴収</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q2. 国保税のうち「介護納付金分」が課税されるのはどの年齢層？</p>
+            <div class="choices">
+              <button class="choice">全年齢</button>
+              <button class="choice" data-correct="true">40歳以上65歳未満の国保被保険者</button>
+              <button class="choice">65歳以上の国保被保険者</button>
+              <button class="choice">20歳未満の国保被保険者</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+          <div class="quiz-question">
+            <p class="q-text">Q3. 特別徴収の対象になりやすい条件はどれ？</p>
+            <div class="choices">
+              <button class="choice">口座振替を希望していない人</button>
+              <button class="choice" data-correct="true">一定額以上の年金を受給している65歳以上の人など要件を満たす場合</button>
+              <button class="choice">生活保護を受けている人</button>
+              <button class="choice">転入したばかりの人全員</button>
+            </div>
+            <p class="feedback"></p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="page">
+    本資料は制度理解のための学習用まとめです。金額・区分・徴収方法などは自治体・年度により異なる場合があるため、実務では必ず最新の条例・要綱・制度資料を確認してください。
+  </footer>
+</div>
+
+<script>
+(function(){
+  // タブ切り替え
+  var tabButtons = document.querySelectorAll('nav.tabs button');
+  tabButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabButtons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var target = btn.getAttribute('data-target');
+      document.querySelectorAll('.panel').forEach(function(p){
+        p.classList.toggle('active', p.id === target);
+      });
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+
+  // クイズ
+  document.querySelectorAll('.quiz-question').forEach(function(q){
+    var choices = q.querySelectorAll('.choice');
+    var feedback = q.querySelector('.feedback');
+    var answered = false;
+    choices.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if(answered) return;
+        answered = true;
+        var isCorrect = btn.hasAttribute('data-correct');
+        choices.forEach(function(c){
+          c.setAttribute('disabled','disabled');
+          if(c.hasAttribute('data-correct')){
+            c.classList.add('correct');
+            c.innerHTML = '✅ ' + c.textContent;
+          }
+        });
+        if(!isCorrect){
+          btn.classList.add('wrong');
+          btn.innerHTML = '❌ ' + btn.textContent;
+        }
+        feedback.classList.add('show');
+        feedback.classList.add(isCorrect ? 'ok' : 'ng');
+        feedback.textContent = isCorrect
+          ? '正解です。'
+          : '不正解です。正しい選択肢を確認しましょう。';
+      });
+    });
+  });
+
+  // 用語ツールチップ(タップ対応)
+  document.querySelectorAll('.term').forEach(function(term){
+    term.addEventListener('click', function(e){
+      var wasActive = term.classList.contains('tip-active');
+      document.querySelectorAll('.term.tip-active').forEach(function(t){ t.classList.remove('tip-active'); });
+      if(!wasActive){ term.classList.add('tip-active'); }
+      e.stopPropagation();
+    });
+  });
+  document.addEventListener('click', function(){
+    document.querySelectorAll('.term.tip-active').forEach(function(t){ t.classList.remove('tip-active'); });
+  });
+
+  // テーマ切り替え
+  var root = document.documentElement;
+  var toggle = document.getElementById('themeToggle');
+  var label = document.getElementById('themeLabel');
+  var saved = null;
+  try{ saved = localStorage.getItem('kokuho-theme'); }catch(e){}
+  if(saved){ root.setAttribute('data-theme', saved); }
+  function syncLabel(){
+    var isDark = root.getAttribute('data-theme') !== 'light';
+    label.textContent = isDark ? 'ダーク' : 'ライト';
+    toggle.firstChild.textContent = isDark ? '🌙 ' : '☀️ ';
+  }
+  syncLabel();
+  toggle.addEventListener('click', function(){
+    var isDark = root.getAttribute('data-theme') !== 'light';
+    var next = isDark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try{ localStorage.setItem('kokuho-theme', next); }catch(e){}
+    syncLabel();
+  });
+})();
+</script>
+</body>
+</html>
